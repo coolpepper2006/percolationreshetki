@@ -1,0 +1,14 @@
+/* Только то, что относится к конкретным страницам */
+
+.lead {
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+/* Легенда в лаборатории */
+.legend {
+  margin-top: 1.5rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+.spanning-color { color: var(--spanning); font-weight: 600; }
