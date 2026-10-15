@@ -52,6 +52,7 @@ class CanvasView {
       }
     }
     this.ctx.putImageData(img, 0, 0);
+    this._drawGrid(L, cellSize, size);
   }
 
   // --- Анимация роста кластера ---
@@ -94,10 +95,26 @@ class CanvasView {
         self._paint(data, size, cellSize, x, y, r, g, b);
       }
       ctx.putImageData(img, 0, 0);
+      self._drawGrid(L, cellSize, size);
       if (step < total) requestAnimationFrame(frame);
       else if (onDone) onDone();
     }
     requestAnimationFrame(frame);
+  }
+
+  _drawGrid(L, cellSize, size) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(76, 96, 130, 0.38)";
+    ctx.lineWidth = L > 20 ? 0.65 : 1;
+    for (let i = 0; i <= L; i++) {
+      const p = i * cellSize + 0.5;
+      ctx.moveTo(p, 0); ctx.lineTo(p, size);
+      ctx.moveTo(0, p); ctx.lineTo(size, p);
+    }
+    ctx.stroke();
+    ctx.restore();
   }
 
   _paint(data, size, cellSize, x, y, r, g, b) {

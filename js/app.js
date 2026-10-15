@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chartEl = document.getElementById('chart-canvas');
   if (!canvasEl) return;
 
-  const model = new PercolationModel({ L: 100, p: 0.5 });
+  const model = new PercolationModel({ L: 30, p: 0.5 });
   const view = {
     canvas: new CanvasView(canvasEl),
     stats: new StatsView(),

@@ -90,7 +90,7 @@ class PercolationController {
       this.model.p = parseFloat(url.searchParams.get("p"));
     }
     if (url.searchParams.has("L")) {
-      this.model.L = parseInt(url.searchParams.get("L"), 10);
+      this.model.L = Math.max(2, Math.min(30, Math.trunc(Number(url.searchParams.get("L")) || 30)));
     }
   }
 

@@ -1,7 +1,7 @@
 
 class PercolationModel {
-  constructor({ L = 100, p = 0.5 } = {}) {
-    this.L = L;
+  constructor({ L = 30, p = 0.5 } = {}) {
+    this.L = Math.max(2, Math.min(30, Math.trunc(Number(L) || 30)));
     this.p = p;
     this.grid = null;
     this.cluster = null;
@@ -39,7 +39,7 @@ class PercolationModel {
   }
 
   setL(L) {
-    this.L = L;
+    this.L = Math.max(2, Math.min(30, Math.trunc(Number(L) || 30)));
     this.regenerate();
   }
 
@@ -83,7 +83,7 @@ class PercolationModel {
       const p = i / steps;
       let spanning = 0;
       for (let t = 0; t < trials; t++) {
-        const grid = new Grid(50, p);
+        const grid = new Grid(30, p);
         const cluster = new Cluster(grid);
         if (cluster.spanningId >= 0) spanning++;
       }
@@ -99,7 +99,7 @@ class PercolationModel {
       const mid = (lo + hi) / 2;
       let spanning = 0;
       for (let t = 0; t < trials; t++) {
-        const grid = new Grid(50, mid);
+        const grid = new Grid(30, mid);
         const cluster = new Cluster(grid);
         if (cluster.spanningId >= 0) spanning++;
       }

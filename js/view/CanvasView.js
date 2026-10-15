@@ -52,52 +52,67 @@ class CanvasView {
       }
     }
     this.ctx.putImageData(img, 0, 0);
+    this._drawGrid(L, cellSize, size);
   }
 
-  // --- Анимация роста кластера ---
+  // --- Плавная пошаговая анимация заполнения всей решётки ---
   animate({ grid, cluster }, order, onDone) {
     const L = grid.L;
     const cellSize = Math.max(2, Math.floor(600 / L));
     const size = L * cellSize;
     this.canvas.width = size;
     this.canvas.height = size;
-
     const ctx = this.ctx;
     const img = ctx.createImageData(size, size);
     const data = img.data;
-
-    // фон + пустые узлы
     for (let i = 0; i < data.length; i += 4) {
       data[i] = 13; data[i + 1] = 17; data[i + 2] = 23; data[i + 3] = 255;
     }
+    // Пустые клетки видны с самого начала, занятые появляются по одной.
     for (let idx = 0; idx < L * L; idx++) {
-      if (grid.cells[idx] === 0) {
-        this._paint(data, size, cellSize, idx % L, (idx / L) | 0, 30, 35, 45);
-      }
+      if (grid.cells[idx] === 0) this._paint(data, size, cellSize, idx % L, Math.floor(idx / L), 30, 35, 45);
     }
     ctx.putImageData(img, 0, 0);
+    this._drawGrid(L, cellSize, size);
 
     let step = 0;
     const total = order.length;
-    const chunk = Math.max(1, Math.floor(total / 120));
-    const self = this;
-
-    function frame() {
-      for (let k = 0; k < chunk && step < total; k++, step++) {
-        const idx = order[step];
-        const x = idx % L;
-        const y = (idx / L) | 0;
-        const isSpan = cluster.labels[idx] === cluster.spanningId;
-        const r = isSpan ? 255 : 88;
-        const g = isSpan ? 77  : 166;
-        const b = isSpan ? 77  : 255;
-        self._paint(data, size, cellSize, x, y, r, g, b);
-      }
+    const delay = L >= 25 ? 9 : L >= 15 ? 15 : 24;
+    const drawCell = (idx, progress) => {
+      const x = idx % L;
+      const y = Math.floor(idx / L);
+      const isSpan = cluster.spanningId >= 0 && cluster.labels[idx] === cluster.spanningId;
+      // Голубые клетки показывают фронт роста; сквозной кластер вспыхивает коралловым.
+      const color = isSpan ? [255, 82, 105] : [74, 178, 255];
+      this._paint(data, size, cellSize, x, y, color[0], color[1], color[2]);
+    };
+    const frame = () => {
+      const batch = L >= 25 ? 2 : 1;
+      for (let k = 0; k < batch && step < total; k++, step++) drawCell(order[step], step / Math.max(1, total));
       ctx.putImageData(img, 0, 0);
-      if (step < total) requestAnimationFrame(frame);
-      else if (onDone) onDone();
-    }
+      this._drawGrid(L, cellSize, size);
+      if (step < total) setTimeout(() => requestAnimationFrame(frame), delay);
+      else {
+        // Финальный кадр — все клетки видны одновременно.
+        if (onDone) onDone();
+      }
+    };
     requestAnimationFrame(frame);
+  }
+
+  _drawGrid(L, cellSize, size) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(76, 96, 130, 0.38)";
+    ctx.lineWidth = L > 20 ? 0.65 : 1;
+    for (let i = 0; i <= L; i++) {
+      const p = i * cellSize + 0.5;
+      ctx.moveTo(p, 0); ctx.lineTo(p, size);
+      ctx.moveTo(0, p); ctx.lineTo(size, p);
+    }
+    ctx.stroke();
+    ctx.restore();
   }
 
   _paint(data, size, cellSize, x, y, r, g, b) {

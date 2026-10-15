@@ -57,22 +57,43 @@ class PercolationController {
     const state = this.model.snapshot();
     if (!state.grid) return;
 
-    // найти первый занятый узел
-    let start = -1;
-    for (let i = 0; i < state.grid.cells.length; i++) {
-      if (state.grid.cells[i] === 1) { start = i; break; }
+    // Показываем ВСЕ занятые ячейки по очереди, а не только один маленький кластер.
+    // Сначала обходятся компоненты, а внутри них — соседние клетки: рост выглядит связным.
+    const L = state.L;
+    const seen = new Uint8Array(L * L);
+    const order = [];
+    for (let seed = 0; seed < L * L; seed++) {
+      if (state.grid.cells[seed] !== 1 || seen[seed]) continue;
+      const queue = [seed];
+      seen[seed] = 1;
+      for (let head = 0; head < queue.length; head++) {
+        const idx = queue[head];
+        order.push(idx);
+        for (const n of state.grid.neighbors(idx)) {
+          if (state.grid.cells[n] === 1 && !seen[n]) {
+            seen[n] = 1;
+            queue.push(n);
+          }
+        }
+      }
     }
-    if (start < 0) return;
 
-    const order = this.model.getGrowthOrder(start);
-    if (!order.length) return;
-
+    if (!order.length) {
+      const btn = document.getElementById("animate");
+      if (btn) {
+        btn.textContent = "Нет занятых ячеек — увеличь p";
+        setTimeout(() => { btn.textContent = "▶ Показать рост кластера"; }, 1800);
+      }
+      return;
+    }
     this.animating = true;
     this.controlsView.disableAnimate(true);
-
+    const btn = document.getElementById("animate");
+    if (btn) btn.textContent = "⏳ Растёт кластер…";
     this.canvasView.animate(state, order, () => {
       this.animating = false;
       this.controlsView.disableAnimate(false);
+      if (btn) btn.textContent = "↻ Повторить анимацию";
     });
   }
 
@@ -97,7 +118,7 @@ class PercolationController {
       this.model.p = parseFloat(url.searchParams.get("p"));
     }
     if (url.searchParams.has("L")) {
-      this.model.L = parseInt(url.searchParams.get("L"), 10);
+      this.model.L = Math.max(2, Math.min(30, Math.trunc(Number(url.searchParams.get("L")) || 30)));
     }
   }
 

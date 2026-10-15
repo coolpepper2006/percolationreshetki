@@ -16,7 +16,7 @@
 <main class="container">
 <section class="intro">
 <h1>Интерактивная перколяция</h1>
-<p class="lead">Двигайте ползунок — и наблюдайте фазовый переход при <code>p ≈ 0.59</code>.</p>
+<p class="lead">Меняй вероятность заполнения и наблюдай, как отдельные островки объединяются в сквозной кластер при <code>p ≈ 0.59</code>.</p>
 </section>
 <div class="progress">
 <div class="progress-bar" id="progress-bar">
@@ -30,21 +30,21 @@
         Вероятность p: <b id="p-value">0.50</b>
 <input id="p-slider" max="1" min="0" step="0.01" type="range" value="0.5"/>
 </label>
-<label>
-        Размер L:
-        <select id="size-select">
-<option value="50">50</option>
-<option selected="" value="100">100</option>
-<option value="200">200</option>
-</select>
-</label>
+<label>Размер L:<input id="size-select" type="text" value="30" inputmode="numeric" autocomplete="off" spellcheck="false" aria-describedby="size-help size-error" maxlength="12"/><small id="size-help" class="field-help">Введи целое число от 2 до 30</small><small id="size-error" class="field-error" role="alert" aria-live="polite"></small></label>
 <button class="btn" id="regenerate" type="button">🎲 Новая</button>
-<button class="btn btn-accent" id="animate" type="button">🔥 Анимация</button>
+<button class="btn btn-accent" id="animate" type="button">▶ Показать рост кластера</button>
 <button class="btn btn-outline" id="toggle-spanning" type="button">Только сквозной</button>
 <button class="btn btn-outline" id="export-png" type="button">📸 PNG</button>
 </div>
-<div class="canvas-wrap">
-<canvas id="grid-canvas"></canvas>
+<div class="canvas-panel">
+  <div class="canvas-title"><div><span class="eyebrow">МОДЕЛЬ СИСТЕМЫ</span><h2>Решётка перколяции</h2></div><span class="live-chip"><i></i> Интерактивная модель</span></div>
+  <div class="canvas-wrap"><canvas id="grid-canvas" aria-label="Сетка перколяции"></canvas></div>
+  <div class="legend">
+    <span><i class="legend-dot empty"></i> Пустая ячейка</span>
+    <span><i class="legend-dot occupied"></i> Занятая ячейка / кластер</span>
+    <span><i class="legend-dot spanning"></i> Сквозной кластер</span>
+  </div>
+  <div class="animation-help"><span class="help-icon">▶</span><div><strong>Что делает анимация?</strong><p>Нажми «Показать рост кластера»: ячейки будут подсвечиваться по очереди — так видно, как вещество проходит через соседние занятые ячейки. Красный цвет отмечает сквозной кластер, если он существует.</p></div></div>
 </div>
 <div class="stats">
 <div><span>Кластеров:</span> <b id="stat-clusters">—</b></div>
@@ -55,7 +55,7 @@
 </section>
 <section class="chart-section">
 <div class="chart-head">
-<h2>Фазовый переход P∞(p)</h2>
+<h2>Фазовый переход · P∞(p)</h2>
 <div class="chart-controls">
 <span>p_c ≈ <b id="chart-pc">—</b></span>
 <button class="btn btn-accent" id="chart-build" type="button">Построить</button>
